@@ -182,7 +182,7 @@ function updatePaginationControls() {
 function translateErrorMessage(errorMessage) {
     switch (errorMessage) {
         case 'Movie not found!':
-            return 'Filme não encontrado!';
+            return 'Nenhum resultado encontrado!';
         case 'Too many results.':
             return 'Muitos resultados. Seja mais específico.';
         case 'Invalid API key!':
