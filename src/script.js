@@ -8,40 +8,88 @@ const movieModal = document.getElementById('movieModal');
 const modalDetails = document.getElementById('modalDetails');
 const closeButton = document.querySelector('.close-button');
 
-searchButton.addEventListener('click', searchMovies);
+// paginação
+const paginationContainer = document.getElementById('pagination');
+const prevPageButton = document.getElementById('prevPage');
+const nextPageButton = document.getElementById('nextPage');
+const currentPageSpan = document.getElementById('currentPage');
+
+// Botão de tema
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+
+let currentPage = 1;
+let totalResults = 0;
+let currentSearchTerm = '';
+
+paginationContainer.style.display = 'none';
+
+searchButton.addEventListener('click', () => {
+    currentPage = 1;
+    searchMovies();
+});
+
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
+        currentPage = 1;
         searchMovies();
     }
 });
+
 closeButton.addEventListener('click', closeModal);
+
 window.addEventListener('click', (e) => {
     if (e.target === movieModal) {
         closeModal();
     }
 });
 
-async function searchMovies() {
-    const searchTerm = searchInput.value.trim();
+prevPageButton.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        searchMovies(currentSearchTerm, currentPage);
+    }
+});
+
+nextPageButton.addEventListener('click', () => {
+    if (currentPage * 10 < totalResults) {
+        currentPage++;
+        searchMovies(currentSearchTerm, currentPage);
+    }
+});
+
+
+themeToggle.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+});
+
+async function searchMovies(searchTerm = searchInput.value.trim(), page = currentPage) {
     if (searchTerm === '') {
         alert('Por favor, digite um título de filme para buscar.');
+        movieList.innerHTML = '';
+        paginationContainer.style.display = 'none';
         return;
     }
 
+    currentSearchTerm = searchTerm;
+
     try {
-        const response = await fetch(`${BASE_URL}?apikey=${API_KEY}&s=${searchTerm}`);
+        const response = await fetch(`${BASE_URL}?apikey=${API_KEY}&s=${searchTerm}&page=${page}`);
         const data = await response.json();
-        
-        console.log(data);
 
         if (data.Response === 'True') {
+            totalResults = parseInt(data.totalResults);
             displayMovies(data.Search);
+            updatePaginationControls();
+            paginationContainer.style.display = 'flex';
         } else {
             movieList.innerHTML = `<p class="error-message">${data.Error}</p>`;
+            paginationContainer.style.display = 'none';
         }
     } catch (error) {
         console.error('Erro ao buscar filmes:', error);
         movieList.innerHTML = `<p class="error-message">Ocorreu um erro ao buscar filmes. Tente novamente mais tarde.</p>`;
+        paginationContainer.style.display = 'none';
     }
 }
 
@@ -90,7 +138,12 @@ function closeModal() {
     movieModal.style.display = 'none';
 }
 
+function updatePaginationControls() {
+    const lastPage = Math.ceil(totalResults / 10);
+    currentPageSpan.textContent = `Página ${currentPage} de ${lastPage}`;
 
-const body = document.body;
-body.classList.add('dark-mode');
+    prevPageButton.disabled = currentPage === 1;
+    nextPageButton.disabled = currentPage === lastPage || totalResults === 0;
+}
+
 

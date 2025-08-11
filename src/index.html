@@ -13,9 +13,15 @@
             <input type="text" id="searchInput" placeholder="Buscar filmes...">
             <button id="searchButton">Buscar</button>
         </div>
+        <button id="themeToggle" class="theme-toggle">Alterar tema</button>
     </header>
     <main>
         <div id="movieList" class="movie-grid"></div>
+        <div id="pagination" class="pagination">
+            <button id="prevPage" disabled>&larr; Anterior</button>
+            <span id="currentPage">Página 1</span>
+            <button id="nextPage" disabled>Próxima &rarr;</button>
+        </div>
     </main>
 
     <div id="movieModal" class="modal">
@@ -28,4 +34,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
