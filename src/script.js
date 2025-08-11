@@ -10,8 +10,10 @@ const closeButton = document.querySelector('.close-button');
 
 // paginação
 const paginationContainer = document.getElementById('pagination');
+const firstPageButton = document.getElementById('firstPage');
 const prevPageButton = document.getElementById('prevPage');
 const nextPageButton = document.getElementById('nextPage');
+const lastPageButton = document.getElementById('lastPage');
 const currentPageSpan = document.getElementById('currentPage');
 
 // Botão de tema
@@ -44,6 +46,13 @@ window.addEventListener('click', (e) => {
     }
 });
 
+firstPageButton.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage = 1;
+        searchMovies(currentSearchTerm, currentPage);
+    }
+});
+
 prevPageButton.addEventListener('click', () => {
     if (currentPage > 1) {
         currentPage--;
@@ -58,10 +67,32 @@ nextPageButton.addEventListener('click', () => {
     }
 });
 
+lastPageButton.addEventListener('click', () => {
+    const lastPage = Math.ceil(totalResults / 10);
+    if (currentPage < lastPage) {
+        currentPage = lastPage;
+        searchMovies(currentSearchTerm, currentPage);
+    }
+});
 
 themeToggle.addEventListener('click', () => {
     body.classList.toggle('dark-mode');
+
+    // Salvar preferência do usuário
+    if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+    } else {
+        localStorage.setItem('theme', 'light');
+    }
 });
+
+// Inicializar com tema de preferência
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+    body.classList.add('dark-mode');
+} else {
+    body.classList.remove('dark-mode');
+}
 
 async function searchMovies(searchTerm = searchInput.value.trim(), page = currentPage) {
     if (searchTerm === '') {
@@ -83,7 +114,7 @@ async function searchMovies(searchTerm = searchInput.value.trim(), page = curren
             updatePaginationControls();
             paginationContainer.style.display = 'flex';
         } else {
-            movieList.innerHTML = `<p class="error-message">${data.Error}</p>`;
+            movieList.innerHTML = `<p class="error-message">${translateErrorMessage(data.Error)}</p>`;
             paginationContainer.style.display = 'none';
         }
     } catch (error) {
@@ -142,8 +173,24 @@ function updatePaginationControls() {
     const lastPage = Math.ceil(totalResults / 10);
     currentPageSpan.textContent = `Página ${currentPage} de ${lastPage}`;
 
+    firstPageButton.disabled = currentPage === 1;
     prevPageButton.disabled = currentPage === 1;
     nextPageButton.disabled = currentPage === lastPage || totalResults === 0;
+    lastPageButton.disabled = currentPage === lastPage || totalResults === 0;
 }
 
+function translateErrorMessage(errorMessage) {
+    switch (errorMessage) {
+        case 'Movie not found!':
+            return 'Filme não encontrado!';
+        case 'Too many results.':
+            return 'Muitos resultados. Seja mais específico.';
+        case 'Invalid API key!':
+            return 'Chave da API inválida!';
+        case 'Request limit reached!':
+            return 'Limite de requisições atingido!';
+        default:
+            return 'Ocorreu um erro desconhecido: ' + errorMessage;
+    }
+}
 
