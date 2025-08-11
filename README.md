@@ -21,4 +21,5 @@ A API utilizada foi a do OMDb.
 - **Listagem de filmes**: Exibe os resultados em um grid de resultados
 - **Detalhes do filme**: Modal com informações mais detalhadas ao clicar em um filme
 - **Tema escuro**: Possibilidade de alternar entre tema claro e escuro
+- **Paginação**: Botões para navegar entre diferentes páginas de resultados
 
